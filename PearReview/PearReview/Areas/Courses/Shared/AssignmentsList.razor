@@ -1,21 +1,10 @@
-﻿@using PearReview.Data
+﻿@using PearReview.Areas.Courses.Services
+@using PearReview.Areas.Courses.Models
+@inject AssignmentsService AssignmentsService
 
-@page "/courses/{courseId}/assignments"
-@inject ApplicationDbContext dbContext
-
-<h1>Assignments</h1>
-
-@if (assignments == null)
+@if (assignments != null && assignments.Any())
 {
-    <p>Loading...</p>
-}
-else if (assignments.Count == 0)
-{
-    <p>No assignments found.</p>
-}
-else
-{
-    <table>
+    <table class="table table-hover table-striped">
         <thead>
             <tr>
                 <th>Title</th>
@@ -33,17 +22,19 @@ else
         </tbody>
     </table>
 }
+else
+{
+    <p>No assignments found for this course.</p>
+}
 
 @code {
-    private List<Assignment> assignments;
-
     [Parameter]
-    public int CourseId { get; set; }
+    public string CourseId { get; set; }
+
+    private List<AssignmentViewModel> assignments;
 
     protected override async Task OnInitializedAsync()
     {
-        assignments = await dbContext.Assignments
-            .Where(a => a.CourseId == CourseId)
-            .ToListAsync();
+        assignments = await AssignmentsService.GetAssignmentsForCourseAsync(CourseId);
     }
 }

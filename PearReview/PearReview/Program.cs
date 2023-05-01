@@ -1,6 +1,10 @@
-using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PearReview.Areas.Courses.Services;
 using PearReview.Areas.Identity;
 using PearReview.Areas.Identity.Data;
@@ -18,7 +22,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 string? connString = builder.Configuration.GetConnectionString("Default");
 if (connString != null)
 {
-    builder.Services.AddDbContext<AppDbContext> (
+    builder.Services.AddDbContext<AppDbContext>(
         opt =>
         {
             opt.UseSqlServer(connString);
@@ -26,6 +30,9 @@ if (connString != null)
             opt.EnableSensitiveDataLogging();
         }
     );
+
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connString));
 }
 
 builder.Services.AddDefaultIdentity<AppUser>(
@@ -36,10 +43,10 @@ builder.Services.AddDefaultIdentity<AppUser>(
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
-    // Use a custom UserStore that uses the DbContextFactory and creates a new DbContext for reach request.
-    // This avoids getting the following error since the same DbContext instance is not used by mutliple threads:
-    // "InvalidOperationException: A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext.'
-    //.AddUserStore<AppUserStore>();
+// Use a custom UserStore that uses the DbContextFactory and creates a new DbContext for reach request.
+// This avoids getting the following error since the same DbContext instance is not used by mutliple threads:
+// "InvalidOperationException: A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext.'
+//.AddUserStore<AppUserStore>();
 
 //builder.Services.AddScoped<AuthenticationStateProvider, AppAuthStateProvider<AppUser>>();
 

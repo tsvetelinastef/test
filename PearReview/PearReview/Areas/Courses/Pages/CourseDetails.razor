@@ -1,104 +1,13 @@
-﻿@page "/courses/{id}"
-@inject ICourseService courseService
- 
-<h1>Course Details</h1>
-<p>Course ID: @Course.Id</p>
+﻿@using PearReview.Models
+@using PearReview.Services
+@inject CoursesService CoursesService
+@inject AssignmentsService AssignmentsService
 
-<h2>Assignments</h2>
-@if (Course.Assignments != null && Course.Assignments.Count > 0)
+<h1>@Course.Title</h1>
+<p>@Course.Description</p>
+
+@if (Assignments != null && Assignments.Any())
 {
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var assignment in Course.Assignments)
-            {
-                <tr>
-                    <td>@assignment.Title</td>
-                    <td>@assignment.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No assignments found for this course.</p>
-}
-
-<h2>Resources</h2>
-@if (Course.Resources != null && Course.Resources.Count > 0)
-{
-    <ul>
-        @foreach (var resource in Course.Resources)
-        {
-            <li>@resource.Filename</li>
-        }
-    </ul>
-}
-else
-{
-    <p>No resources found for this course.</p>
-}
-
-<h2>Add Resource</h2>
-<div>
-    <label for="resource-upload">Upload file:</label>
-    <InputFile id="resource-upload" OnChange="@HandleFileSelected" />
-
-    @if (file != null)
-    {
-        <p>Selected file: @file.Name</p>
-        <button class="btn btn-primary" @onclick="UploadFile">Upload</button>
-    }
-</div>
-
-@code {
-    [Parameter]
-    public int Id { get; set; }
-
-    private Course Course { get; set; }
-
-    private IBrowserFile file;
-
-    protected override async Task OnInitializedAsync()
-    {
-        Course = await courseService.GetCourseAsync(Id);
-    }
-
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        file = e.File;
-    }
-
-    private async Task UploadFile()
-    {
-        if (file != null)
-        {
-            // Upload file to server
-            var memoryStream = new MemoryStream();
-            await file.OpenReadStream().CopyToAsync(memoryStream);
-
-            var resource = new Resource
-            {
-                Filename = file.Name,
-                ContentType = file.ContentType,
-                Data = memoryStream.ToArray(),
-                CourseId = Course.Id
-            };
-
-            await courseService.AddResourceAsync(resource);
-
-            // Clear selected file
-            file = null;
-
-            // Refresh the page
-            Course = await courseService.GetCourseAsync(Id);
-            StateHasChanged();
-        }
-    }
-}
+    <h3>Assignments</h3>
+    <div class="list-group">
+        @foreach (var assignment in Assignments)
