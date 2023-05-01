@@ -18,7 +18,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 string? connString = builder.Configuration.GetConnectionString("Default");
 if (connString != null)
 {
-    builder.Services.AddDbContextFactory<AppDbContext>(
+    builder.Services.AddDbContext<AppDbContext> (
         opt =>
         {
             opt.UseSqlServer(connString);
